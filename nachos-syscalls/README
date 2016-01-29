@@ -1,0 +1,23 @@
+syscall_Getreg : Obtained register number from call and returned value.
+
+syscall_GetPA : Checked for error codes and used Translate() from translate.cc incase no errors were found. See code for more details.
+
+syscall_GetPID : Used a global static variable pidnumber which remains same for all objects(static). This is incremented in the constructor and pid is assigned to the current thread in .../nachos/code/thread/thread.cc
+
+syscall_GetPPID : The thread that calls the constructor for another thread must be the parent for the latter thread. Thus the former becomes the parent and we assign pid of this thread as PPID(). This is implemented in .../nachos/code/thread/thread.cc
+
+syscall_NumInstr : Again used a global variable and incremented it in the function OneInstruction. The total number of instruction is in the variable machine->InstrExecuted. This is what we return in the syscall implementation.
+
+syscall_Yield : Call machine->YieldCPU(). Only thing to remember is to Advance Program Counters before yielding.
+
+syscall_Time : Return stats->totalTicks
+
+syscall_Sleep : Maintained SleepQueue as instructed. Used List type from list.h. In syscall we only enqueue process by time when to wake up(calculated in syscall itself). In TimerInterruptHander() routine in .../nachos/code/threads/system.cc we check if there are any threads to wake up and proceed likewise.
+
+syscall_Exec : Used syscall_PrintString() code to convert to filename. Used StartProcess() to run executable.
+
+syscall_Exit : checked for parent thread and checked if parent was waiting for child or not. Updated status accordingly. Each thread maintains two arrays maintaining child pid's and child statuses.
+
+syscall_Join : Searched for child. If present obtained index into the above arrays and status of child. If child is running, parent goes to sleep. As soon as child completes, parent gets the signal.
+
+syscall_Fork : Created child. Added Entry. Sent parent's starting physical page number and number of pages as arguments to an overloaded constructor for Address Space. Copied parent address space to child address space using hint given on assignment1.txt(more details in addrspace.cc). Then put 0 in register 2 and saved state for child. Thus child gets return value 0. Now, change register vlue to pid of child so that it becomes return value of parent. Next allocate stack to child and schedule it to run.
